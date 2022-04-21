@@ -1,16 +1,35 @@
 package com.company;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 
     public static final String root = ".\\Games\\";
+
+    public static boolean recordLogFile(String log, String fileName) {
+
+        String[] arraysLog = log.toString().split("%");
+        try (FileWriter writer = new FileWriter(fileName, true)) {
+            for (String string : arraysLog) {
+                writer.write(string);
+                System.out.println(string);
+                writer.append("\n");
+            }
+            return true;
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+    }
 
     public static String userName() throws ClassNotFoundException, NoSuchMethodException,
             InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -79,30 +98,24 @@ public class Main {
 
         StringBuilder log = new StringBuilder();
 
-        log.append(createStructure("src", false));
-        log.append(createStructure("res", false));
-        log.append(createStructure("savegames", false));
-        log.append(createStructure("temp", false));
+        List<String> paths = Arrays.asList("src", "res", "savegames", "temp",
+                "src\\main", "src\\test",
+                "src\\main\\Main.java", "src\\main\\Utils.java",
+                "res\\drawables", "res\\vectors", "res\\icons",
+                "temp\\temp.txt");
 
-        log.append(createStructure("src\\main", false));
-        log.append(createStructure("src\\test", false));
-
-        log.append(createStructure("src\\main\\Main.java", true));
-        log.append(createStructure("src\\main\\Utils.java", true));
-
-        log.append(createStructure("res\\drawables", false));
-        log.append(createStructure("res\\vectors", false));
-        log.append(createStructure("res\\icons", false));
-
-        log.append(createStructure("temp\\temp.txt", true));
-
-        String[] arraysLog = log.toString().split("%");
-        for (String string : arraysLog
+        for (String path : paths
         ) {
-            System.out.println(string);
+            if (!path.contains(".")) {
+                log.append(createStructure(path, false));
+            } else {
+                log.append(createStructure(path, true));
+            }
         }
-        Arrays.toString(log.toString().split("%"));
-
-
+        if (recordLogFile(log.toString(), root + "temp\\temp.txt")) {
+            System.out.println("лог файл успешно записан");
+        } else {
+            System.out.println("не удалось записать лог файл");
+        }
     }
 }
